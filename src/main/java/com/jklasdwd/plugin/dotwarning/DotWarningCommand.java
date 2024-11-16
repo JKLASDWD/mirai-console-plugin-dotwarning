@@ -6,6 +6,7 @@ import net.mamoe.mirai.console.data.Value;
 import net.mamoe.mirai.console.permission.Permission;
 import net.mamoe.mirai.console.permission.PermissionId;
 import net.mamoe.mirai.console.permission.PermissionService;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -78,5 +79,21 @@ public final class DotWarningCommand extends JCompositeCommand {
         catch(NullPointerException e){
             sender.sendMessage("没有这个项！");
         }
+    }
+    @SubCommand("print")
+    @Description("打印出某个群的所有正则过滤库")
+    public void print_regrex_list(CommandSender sender,@Name("群号") String group) {
+        Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
+        Map<String, List<String>> m= regrexlist.get();
+        List<String> l1= m.get(group);
+        MessageChainBuilder messageChainBuilder = new MessageChainBuilder();
+        for(String s: l1){
+            messageChainBuilder.append(s);
+            messageChainBuilder.append("\n");
+        }
+        if(!messageChainBuilder.isEmpty())
+            sender.sendMessage(messageChainBuilder.build());
+        else
+            sender.sendMessage("正则库为空！");
     }
 }

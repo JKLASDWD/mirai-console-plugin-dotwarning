@@ -42,7 +42,7 @@ public final class DotWarningMain extends JavaPlugin {
 
     private DotWarningMain() {
         super(new JvmPluginDescriptionBuilder("com.jklasdwd.plugin.dotwarning", "0.1.0")
-                .info("EG")
+                .info("Dotwarning")
                 .build());
     }
 
