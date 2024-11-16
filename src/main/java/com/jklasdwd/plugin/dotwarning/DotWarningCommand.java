@@ -6,8 +6,10 @@ import net.mamoe.mirai.console.data.Value;
 import net.mamoe.mirai.console.permission.Permission;
 import net.mamoe.mirai.console.permission.PermissionId;
 import net.mamoe.mirai.console.permission.PermissionService;
+import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +37,20 @@ public final class DotWarningCommand extends JCompositeCommand {
     public void add_group_regrex_list(CommandSender sender,@Name("群号") String group,@Name("正则表达式") String l) {
         Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
         Map<String, List<String>> m= regrexlist.get();
-        List<String> l1= m.get(group);
-        l1.add(l);
-        m.put(group,l1);
-        regrexlist.set(m);
+        try {
+            List<String> l1= m.get(group);
+            if(!l1.contains(l)) {
+                l1.add(l);
+                m.put(group,l1);
+                regrexlist.set(m);
+            }
+        }
+        catch (NullPointerException e) {
+            List<String> l1 = new ArrayList<>();
+            l1.add(l);
+            m.put(group,l1);
+            regrexlist.set(m);
+        }
         sender.sendMessage("添加成功！");
     }
     @SubCommand("show")
@@ -46,35 +58,46 @@ public final class DotWarningCommand extends JCompositeCommand {
     public void show_group_list_data(CommandSender sender,@Name("群号") String group) {
         Value<Map<String,Map<String,Integer>>> warninglist = DotWarningData.INSTANCE.warninglist;
         Map<String,Map<String,Integer>> m= warninglist.get();
-        Map<String,Integer> group_warningmember_list = m.get(group);
-        StringBuilder message = new StringBuilder();
-        if(!m.isEmpty()){
+        try{
+            Map<String,Integer> group_warningmember_list = m.get(group);
+            MessageChainBuilder mb = new MessageChainBuilder();
             for (Map.Entry<String,Integer> entry : group_warningmember_list.entrySet()) {
-                message.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+                    mb.append(entry.getKey())
+                            .append(":")
+                            .append(entry.getValue().toString())
+                            .append("\n");
             }
+            MessageChain messages = mb.build();
+            if(!messages.isEmpty())
+                sender.sendMessage(messages.contentToString());
+            else
+                sender.sendMessage("列表为空！");
         }
-        if(message.length()>0)
-            sender.sendMessage(message.toString());
-        else
+        catch (NullPointerException e) {
             sender.sendMessage("列表为空");
+        }
     }
     @SubCommand("reload")
     @Description("重载插件，每次更改后需要重载插件以重新建立监听事件")
     public void reload_(CommandSender sender) {
         DotWarningMain.INSTANCE.onDisable();
         DotWarningMain.INSTANCE.onEnable();
+        sender.sendMessage("重载成功！");
     }
     @SubCommand("delete")
     @Description("删除特定正则过滤")
     public void delete_(CommandSender sender,@Name("群号") String group,@Name("正则表达式") String l) {
         Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
         Map<String, List<String>> m= regrexlist.get();
-        List<String> l1= m.get(group);
         try{
-            l1.remove(l);
-            regrexlist.set(m);
+            List<String> l1= m.get(group);
+            boolean b = l1.remove(l);
             m.put(group,l1);
-            sender.sendMessage("删除成功！");
+            regrexlist.set(m);
+            if(b)
+                sender.sendMessage("删除成功！");
+            else
+                sender.sendMessage("没有这个项！");
         }
         catch(NullPointerException e){
             sender.sendMessage("没有这个项！");
@@ -84,16 +107,23 @@ public final class DotWarningCommand extends JCompositeCommand {
     @Description("打印出某个群的所有正则过滤库")
     public void print_regrex_list(CommandSender sender,@Name("群号") String group) {
         Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
-        Map<String, List<String>> m= regrexlist.get();
-        List<String> l1= m.get(group);
-        MessageChainBuilder messageChainBuilder = new MessageChainBuilder();
-        for(String s: l1){
-            messageChainBuilder.append(s);
-            messageChainBuilder.append("\n");
+        Map<String, List<String>> m = regrexlist.get();
+        try{
+            List<String> l1= m.get(group);
+            MessageChainBuilder messageChainBuilder = new MessageChainBuilder();
+            for(String s: l1){
+                messageChainBuilder.append(s);
+                messageChainBuilder.append("\n");
+            }
+            MessageChain messages = messageChainBuilder.build();
+            if(!messages.isEmpty())
+                sender.sendMessage(messages.contentToString());
+            else
+                sender.sendMessage("正则库为空！");
         }
-        if(!messageChainBuilder.isEmpty())
-            sender.sendMessage(messageChainBuilder.build());
-        else
+        catch (NullPointerException e) {
             sender.sendMessage("正则库为空！");
+        }
+
     }
 }

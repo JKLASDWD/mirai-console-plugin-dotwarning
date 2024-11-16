@@ -17,6 +17,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.*;
@@ -78,11 +79,18 @@ public final class DotWarningMain extends JavaPlugin {
                                     .append(f.getSenderName())
                                     .append("违规");
                             f.getGroup().sendMessage(message_.asMessageChain());
-
-                            Map<String,Integer> warning_member = warning_map.get(entry.getKey());
-                            warning_member.put(s, warning_member.get(s)+1);
-                            warning_map.put(entry.getKey(), warning_member);
-                            warninglist.set(warning_map);
+                            try{
+                                Map<String,Integer> warning_member = warning_map.get(entry.getKey());
+                                warning_member.put(s, warning_member.get(s)+1);
+                                warning_map.put(entry.getKey(), warning_member);
+                                warninglist.set(warning_map);
+                            }
+                            catch (NullPointerException e){
+                                Map<String,Integer> warning_member = new HashMap<>();
+                                warning_member.put(s, 1);
+                                warning_map.put(entry.getKey(), warning_member);
+                                warninglist.set(warning_map);
+                            }
                             break;
                         }
                     }
