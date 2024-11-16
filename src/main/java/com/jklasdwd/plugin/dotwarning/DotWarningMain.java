@@ -43,7 +43,7 @@ public final class DotWarningMain extends JavaPlugin {
     public static final DotWarningMain INSTANCE = new DotWarningMain();
 
     private DotWarningMain() {
-        super(new JvmPluginDescriptionBuilder("com.jklasdwd.plugin.dotwarning", "0.1.0")
+        super(new JvmPluginDescriptionBuilder("com.jklasdwd.plugin.dotwarning", "1.0.0")
                 .info("Dotwarning")
                 .build());
     }
@@ -75,7 +75,7 @@ public final class DotWarningMain extends JavaPlugin {
                     String s = f.getMessage().contentToString();
                     for(String regrex_group: regrex_group_list) {
                         Pattern pattern = Pattern.compile(regrex_group);
-                        if(pattern.matcher(s).matches()) {
+                        if(pattern.matcher(s).find()) {
                             MessageChainBuilder message_ = new MessageChainBuilder()
                                     .append(new At(f.getGroup().getOwner().getId()))
                                     .append(" ")
