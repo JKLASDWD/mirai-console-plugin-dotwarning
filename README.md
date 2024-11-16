@@ -20,17 +20,15 @@ Plugin Config配置 （com.jklasdwd.plugin.dotwarning/DotWarningConfig.yml)
 
 ```yaml
 grouplist:
-	groupnumber1:True
-	groupnumber2:False
+  groupnumber1: true
+  groupnumber2: false
 regrexlist:
-	groupnumber1:
-		- AAA
-		- BBB
-		....
-	groupnumber2:
-		- BBB
-		- CCC
-		....
+  groupnumber1:
+    - AAA
+    - BBB
+  groupnumber2:
+    - BBB
+    - CCC
 
 #TODO
 #(atgroupowner?)
@@ -44,14 +42,12 @@ Plugin Data配置(com.jklasdwd.plugin.dotwarning/DotWarningData.yml)
 
 ```yaml
 warninglist:
-	group1:
-		member1:Int
-		member2:Int
-		...
-	group2:
-		-
-		-
-		...
+  group1:
+    member1: Int
+    member2: Int
+  group2:
+    member1: Int
+    member2: Int
 ```
 
 
