@@ -2,6 +2,7 @@ package com.jklasdwd.plugin.dotwarning;
 
 import kotlin.Lazy;
 import kotlin.LazyKt;
+import kotlinx.coroutines.CoroutineScope;
 import net.mamoe.mirai.console.command.CommandManager;
 import net.mamoe.mirai.console.data.Value;
 import net.mamoe.mirai.console.permission.*;
@@ -69,7 +70,7 @@ public final class DotWarningMain extends JavaPlugin {
         for(Map.Entry<String,Boolean> entry: m.entrySet()) {
             if(entry.getValue()) {
                 long id = Long.parseLong(entry.getKey());
-                EventChannel<Event> channel = GlobalEventChannel.INSTANCE.filter(event -> event instanceof GroupMessageEvent && ( ((GroupMessageEvent) event).getGroup().getId() == id));
+                EventChannel<Event> channel = GlobalEventChannel.INSTANCE.parentScope(this).filter(event -> event instanceof GroupMessageEvent && ( ((GroupMessageEvent) event).getGroup().getId() == id));
                 channel.subscribeAlways(GroupMessageEvent.class, f->{
                     List<String> regrex_group_list = regrex_map.get(entry.getKey());
                     String s = f.getMessage().contentToString();
@@ -111,6 +112,12 @@ public final class DotWarningMain extends JavaPlugin {
                 });
             }
         }
+    }
+
+    @Override
+    public void onDisable() {
+
+        super.onDisable();
     }
 
     // region mirai-console 权限系统示例
