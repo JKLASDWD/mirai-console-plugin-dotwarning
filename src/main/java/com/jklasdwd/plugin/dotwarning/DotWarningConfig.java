@@ -18,7 +18,7 @@ public class DotWarningConfig extends JavaAutoSavePluginConfig {
                 {
                     // anonymous class,initial Hashmap
                     {
-                        put("Test",true);
+                        put("1",true);
                     }
                 }
         );

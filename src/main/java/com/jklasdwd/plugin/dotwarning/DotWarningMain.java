@@ -15,6 +15,7 @@ import net.mamoe.mirai.event.EventChannel;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.At;
+import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
 import java.util.HashMap;
@@ -64,9 +65,11 @@ public final class DotWarningMain extends JavaPlugin {
         Value<Map<String,Map<String,Integer>>> warninglist = DotWarningData.INSTANCE.warninglist;
         Map<String,Map<String,Integer>> warning_map= warninglist.get();
 
+        // 注册事件
         for(Map.Entry<String,Boolean> entry: m.entrySet()) {
             if(entry.getValue()) {
-                EventChannel<Event> channel = GlobalEventChannel.INSTANCE.filter(event -> event instanceof GroupMessageEvent && ((GroupMessageEvent) event).getGroup().toString().equals(entry.getKey()));
+                long id = Long.parseLong(entry.getKey());
+                EventChannel<Event> channel = GlobalEventChannel.INSTANCE.filter(event -> event instanceof GroupMessageEvent && ( ((GroupMessageEvent) event).getGroup().getId() == id));
                 channel.subscribeAlways(GroupMessageEvent.class, f->{
                     List<String> regrex_group_list = regrex_map.get(entry.getKey());
                     String s = f.getMessage().contentToString();
@@ -77,19 +80,30 @@ public final class DotWarningMain extends JavaPlugin {
                                     .append(new At(f.getGroup().getOwner().getId()))
                                     .append(" ")
                                     .append(f.getSenderName())
-                                    .append("违规");
-                            f.getGroup().sendMessage(message_.asMessageChain());
+                                    .append("违规\n");
                             try{
                                 Map<String,Integer> warning_member = warning_map.get(entry.getKey());
-                                warning_member.put(s, warning_member.get(s)+1);
+                                String member_id = String.valueOf(f.getSender().getId());
+                                warning_member.put(member_id, warning_member.get(member_id)+1);
                                 warning_map.put(entry.getKey(), warning_member);
                                 warninglist.set(warning_map);
+                                message_.append("已连续")
+                                        .append(String.valueOf(warning_member.get(member_id)))
+                                        .append("次违规");
+                                MessageChain messages = message_.build();
+                                f.getGroup().sendMessage(messages);
                             }
                             catch (NullPointerException e){
                                 Map<String,Integer> warning_member = new HashMap<>();
-                                warning_member.put(s, 1);
+                                String member_id = String.valueOf(f.getSender().getId());
+                                warning_member.put(member_id, 1);
                                 warning_map.put(entry.getKey(), warning_member);
                                 warninglist.set(warning_map);
+                                message_.append("已连续")
+                                        .append(String.valueOf(warning_member.get(member_id)))
+                                        .append("次违规");
+                                MessageChain messages = message_.build();
+                                f.getGroup().sendMessage(messages);
                             }
                             break;
                         }

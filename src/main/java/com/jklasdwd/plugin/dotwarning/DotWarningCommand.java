@@ -104,13 +104,14 @@ public final class DotWarningCommand extends JCompositeCommand {
         }
     }
     @SubCommand("print")
-    @Description("打印出某个群的所有正则过滤库")
+    @Description("打印出某个群的所有正则过滤库以及群状态")
     public void print_regrex_list(CommandSender sender,@Name("群号") String group) {
         Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
         Map<String, List<String>> m = regrexlist.get();
         try{
             List<String> l1= m.get(group);
             MessageChainBuilder messageChainBuilder = new MessageChainBuilder();
+
             for(String s: l1){
                 messageChainBuilder.append(s);
                 messageChainBuilder.append("\n");
