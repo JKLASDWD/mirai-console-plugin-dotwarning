@@ -6,10 +6,7 @@ import net.mamoe.mirai.console.data.Value;
 import net.mamoe.mirai.console.permission.Permission;
 import net.mamoe.mirai.console.permission.PermissionId;
 import net.mamoe.mirai.console.permission.PermissionService;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.utils.BotConfiguration;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
