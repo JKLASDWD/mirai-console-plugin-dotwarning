@@ -13,13 +13,13 @@ public class DotWarningData extends JavaAutoSavePluginData {
         super(saveName);
     }
     public static final DotWarningData INSTANCE = new DotWarningData("DotWarningData");
-    public final Value<Map<String,Map<String,Integer>>> warninglist = typedValue
+    public final Value<Map<Long,Map<Long,Integer>>> warninglist = typedValue
             (
             "warninglist",
-            createKType(Map.class,createKType(String.class),createKType(Map.class,createKType(String.class),createKType(Integer.class))),
-                    new HashMap<String,Map<String,Integer>>(){
+            createKType(Map.class,createKType(Long.class),createKType(Map.class,createKType(Long.class),createKType(Integer.class))),
+                    new HashMap<Long,Map<Long,Integer>>(){
                         {
-                            put("1",new HashMap<String,Integer>());
+                            put(1L,new HashMap<Long,Integer>());
                         }
                     }
             );

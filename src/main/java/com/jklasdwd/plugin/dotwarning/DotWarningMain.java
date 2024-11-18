@@ -7,18 +7,19 @@ import net.mamoe.mirai.console.command.CommandManager;
 import net.mamoe.mirai.console.data.Value;
 import net.mamoe.mirai.console.permission.*;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
+import net.mamoe.mirai.console.plugin.jvm.JavaPluginScheduler;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.contact.User;
-import net.mamoe.mirai.event.Event;
-import net.mamoe.mirai.event.EventChannel;
-import net.mamoe.mirai.event.GlobalEventChannel;
+import net.mamoe.mirai.event.*;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
+import javax.naming.LinkLoopException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,8 @@ import java.util.regex.*;
 
 public final class DotWarningMain extends JavaPlugin {
     public static final DotWarningMain INSTANCE = new DotWarningMain();
-
+    public JavaPluginScheduler scheduler;
+    private List<Listener<GroupMessageEvent>> listeners = new ArrayList<>();
     private DotWarningMain() {
         super(new JvmPluginDescriptionBuilder("com.jklasdwd.plugin.dotwarning", "1.0.0")
                 .info("Dotwarning")
@@ -56,22 +58,24 @@ public final class DotWarningMain extends JavaPlugin {
         this.reloadPluginData(DotWarningData.INSTANCE);
         DotwarningPermission.getValue(); // 注册权限
         CommandManager.INSTANCE.registerCommand(DotWarningCommand.INSTANCE,false);
+        scheduler = getScheduler();
+        Value<Map<Long,Boolean>> grouplist = DotWarningConfig.INSTANCE.grouplist;
+        Map<Long,Boolean> m= grouplist.get();
 
-        Value<Map<String,Boolean>> grouplist = DotWarningConfig.INSTANCE.grouplist;
-        Map<String,Boolean> m= grouplist.get();
+        Value<Map<Long, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
+        Map<Long, List<String>> regrex_map= regrexlist.get();
 
-        Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
-        Map<String, List<String>> regrex_map= regrexlist.get();
-
-        Value<Map<String,Map<String,Integer>>> warninglist = DotWarningData.INSTANCE.warninglist;
-        Map<String,Map<String,Integer>> warning_map= warninglist.get();
-
+        Value<Map<Long,Map<Long,Integer>>> warninglist = DotWarningData.INSTANCE.warninglist;
+        Map<Long,Map<Long,Integer>> warning_map= warninglist.get();
         // 注册事件
-        for(Map.Entry<String,Boolean> entry: m.entrySet()) {
+        for(Map.Entry<Long,Boolean> entry: m.entrySet()) {
             if(entry.getValue()) {
-                long id = Long.parseLong(entry.getKey());
-                EventChannel<Event> channel = GlobalEventChannel.INSTANCE.parentScope(this).filter(event -> event instanceof GroupMessageEvent && ( ((GroupMessageEvent) event).getGroup().getId() == id));
-                channel.subscribeAlways(GroupMessageEvent.class, f->{
+                long id = entry.getKey();
+                EventChannel<Event> channel = GlobalEventChannel
+                        .INSTANCE
+                        .parentScope(scheduler)
+                        .filter(event -> event instanceof GroupMessageEvent && ( ((GroupMessageEvent) event).getGroup().getId() == id));
+                Listener<GroupMessageEvent> L = channel.subscribe(GroupMessageEvent.class, f->{
                     List<String> regrex_group_list = regrex_map.get(entry.getKey());
                     String s = f.getMessage().contentToString();
                     for(String regrex_group: regrex_group_list) {
@@ -83,8 +87,8 @@ public final class DotWarningMain extends JavaPlugin {
                                     .append(f.getSenderName())
                                     .append("违规\n");
                             try{
-                                Map<String,Integer> warning_member = warning_map.get(entry.getKey());
-                                String member_id = String.valueOf(f.getSender().getId());
+                                Map<Long,Integer> warning_member = warning_map.get(entry.getKey());
+                                Long member_id = f.getSender().getId();
                                 warning_member.put(member_id, warning_member.get(member_id)+1);
                                 warning_map.put(entry.getKey(), warning_member);
                                 warninglist.set(warning_map);
@@ -95,8 +99,8 @@ public final class DotWarningMain extends JavaPlugin {
                                 f.getGroup().sendMessage(messages);
                             }
                             catch (NullPointerException e){
-                                Map<String,Integer> warning_member = new HashMap<>();
-                                String member_id = String.valueOf(f.getSender().getId());
+                                Map<Long,Integer> warning_member = new HashMap<>();
+                                Long member_id = f.getSender().getId();
                                 warning_member.put(member_id, 1);
                                 warning_map.put(entry.getKey(), warning_member);
                                 warninglist.set(warning_map);
@@ -109,15 +113,22 @@ public final class DotWarningMain extends JavaPlugin {
                             break;
                         }
                     }
+                    return ListeningStatus.LISTENING;
                 });
+                listeners.add(L);
             }
         }
     }
 
     @Override
     public void onDisable() {
-
-        super.onDisable();
+        this.savePluginConfig(DotWarningConfig.INSTANCE);
+        this.savePluginData(DotWarningData.INSTANCE);
+        getLogger().info("Dotwarning plugin disabled");
+        for (Listener<GroupMessageEvent> listener : listeners) {
+            listener.complete();
+        }
+        listeners.clear();
     }
 
     // region mirai-console 权限系统示例

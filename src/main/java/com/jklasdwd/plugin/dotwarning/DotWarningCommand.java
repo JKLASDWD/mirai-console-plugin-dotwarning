@@ -25,18 +25,18 @@ public final class DotWarningCommand extends JCompositeCommand {
 
     @SubCommand("set")
     @Description("设置某个群是否开启dotwarning")
-    public void set_group_on(CommandSender sender ,@Name("群号") String group,@Name("true/false")boolean b) {
-        Value<Map<String,Boolean>> grouplist = DotWarningConfig.INSTANCE.grouplist;
-        Map<String,Boolean> m= grouplist.get();
+    public void set_group_on(CommandSender sender ,@Name("群号") Long group,@Name("true/false")boolean b) {
+        Value<Map<Long,Boolean>> grouplist = DotWarningConfig.INSTANCE.grouplist;
+        Map<Long,Boolean> m= grouplist.get();
         m.put(group,b);
         grouplist.set(m);
         sender.sendMessage("设置成功！");
     }
     @SubCommand("add")
     @Description("为某个群添加正则过滤")
-    public void add_group_regrex_list(CommandSender sender,@Name("群号") String group,@Name("正则表达式") String l) {
-        Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
-        Map<String, List<String>> m= regrexlist.get();
+    public void add_group_regrex_list(CommandSender sender,@Name("群号") Long group,@Name("正则表达式") String l) {
+        Value<Map<Long, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
+        Map<Long, List<String>> m= regrexlist.get();
         try {
             List<String> l1= m.get(group);
             if(!l1.contains(l)) {
@@ -55,14 +55,14 @@ public final class DotWarningCommand extends JCompositeCommand {
     }
     @SubCommand("show")
     @Description("显示某个群的所有警告记录")
-    public void show_group_list_data(CommandSender sender,@Name("群号") String group) {
-        Value<Map<String,Map<String,Integer>>> warninglist = DotWarningData.INSTANCE.warninglist;
-        Map<String,Map<String,Integer>> m= warninglist.get();
+    public void show_group_list_data(CommandSender sender,@Name("群号") Long group) {
+        Value<Map<Long,Map<Long,Integer>>> warninglist = DotWarningData.INSTANCE.warninglist;
+        Map<Long,Map<Long,Integer>> m= warninglist.get();
         try{
-            Map<String,Integer> group_warningmember_list = m.get(group);
+            Map<Long,Integer> group_warningmember_list = m.get(group);
             MessageChainBuilder mb = new MessageChainBuilder();
-            for (Map.Entry<String,Integer> entry : group_warningmember_list.entrySet()) {
-                    mb.append(entry.getKey())
+            for (Map.Entry<Long,Integer> entry : group_warningmember_list.entrySet()) {
+                    mb.append(entry.getKey().toString())
                             .append(":")
                             .append(entry.getValue().toString())
                             .append("\n");
@@ -86,9 +86,9 @@ public final class DotWarningCommand extends JCompositeCommand {
     }
     @SubCommand("delete")
     @Description("删除特定正则过滤")
-    public void delete_(CommandSender sender,@Name("群号") String group,@Name("正则表达式") String l) {
-        Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
-        Map<String, List<String>> m= regrexlist.get();
+    public void delete_(CommandSender sender,@Name("群号") Long group,@Name("正则表达式") String l) {
+        Value<Map<Long, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
+        Map<Long, List<String>> m= regrexlist.get();
         try{
             List<String> l1= m.get(group);
             boolean b = l1.remove(l);
@@ -105,9 +105,9 @@ public final class DotWarningCommand extends JCompositeCommand {
     }
     @SubCommand("print")
     @Description("打印出某个群的所有正则过滤库以及群状态")
-    public void print_regrex_list(CommandSender sender,@Name("群号") String group) {
-        Value<Map<String, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
-        Map<String, List<String>> m = regrexlist.get();
+    public void print_regrex_list(CommandSender sender,@Name("群号") Long group) {
+        Value<Map<Long, List<String>>> regrexlist = DotWarningConfig.INSTANCE.regrexlist;
+        Map<Long, List<String>> m = regrexlist.get();
         try{
             List<String> l1= m.get(group);
             MessageChainBuilder messageChainBuilder = new MessageChainBuilder();

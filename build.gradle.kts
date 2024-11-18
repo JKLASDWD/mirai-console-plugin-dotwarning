@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.example"
-version = "0.1.0"
+version = "1.0.0"
 
 repositories {
     if (System.getenv("CI")?.toBoolean() != true) {

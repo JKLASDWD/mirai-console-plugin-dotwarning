@@ -10,24 +10,24 @@ public class DotWarningConfig extends JavaAutoSavePluginConfig {
         super(saveName);
     }
     public static final DotWarningConfig INSTANCE = new DotWarningConfig("DotWarningConfig");
-    public final Value<Map<String,Boolean>> grouplist = typedValue
+    public final Value<Map<Long,Boolean>> grouplist = typedValue
         (
                 "grouplist",
-                createKType(Map.class,createKType(String.class),createKType(Boolean.class)),
-                new HashMap<String,Boolean>()
+                createKType(Map.class,createKType(Long.class),createKType(Boolean.class)),
+                new HashMap<Long,Boolean>()
                 {
                     // anonymous class,initial Hashmap
                     {
-                        put("1",true);
+                        put(1L,true);
                     }
                 }
         );
-    public final Value<Map<String,List<String>>> regrexlist = typedValue(
+    public final Value<Map<Long,List<String>>> regrexlist = typedValue(
             "regrexlist",
-            createKType(Map.class,createKType(String.class),createKType(List.class,createKType(String.class))),
-            new HashMap<String,List<String>>(){
+            createKType(Map.class,createKType(Long.class),createKType(List.class,createKType(String.class))),
+            new HashMap<Long,List<String>>(){
                 {
-                    put("1", Arrays.asList("1","2"));
+                    put(1L, Arrays.asList("1","2"));
                 }
             }
     );
